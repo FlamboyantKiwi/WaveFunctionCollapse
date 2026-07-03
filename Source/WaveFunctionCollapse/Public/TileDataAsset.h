@@ -4,13 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "WFCTypes.h"
 #include "TileDataAsset.generated.h"
 
 /** UTileDataAsset
  * The core data container for the Wave Function Collapse (WFC) generation system.
  * This asset represents a single tile possibility (e.g., an enemy, a wall, or an empty space).
- * It dictates what actor to spawn in the world, its base probability, and the strict
- * adjacency rules (Avoidant and Dependent) that the WFC algorithm uses to build the grid.
+ * It dictates the tile's UI visualization, the physical 3D Actor to spawn upon final generation, 
+ * its base selection probability (weight), and its complex adjacency constraints.
+ * Rules are defined via an array of FTileRuleWrappers, which allows designers to build highly 
+ * customizable, data-driven constraints—including Avoidant/Required conditions, specific 
+ * directional checks (Orthogonal/Diagonal), and exact neighbor counts—without altering C++ logic.
  */
 UCLASS()
 class WAVEFUNCTIONCOLLAPSE_API UTileDataAsset : public UDataAsset {
@@ -31,16 +35,10 @@ public:
 
     /* Determines how likely this tile is to be selected compared to other valid tiles.
      * A higher weight means it will be chosen more frequently during the collapse phase.*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Spawning")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Rules")
     float SpawnWeight = 1.0f;
 
-    /* AVOIDANT RULE (Blacklist):
-     * This tile CANNOT be placed directly next to ANY of the tiles in this list.*/
+    // The master list of all rules for this tile
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Rules")
-    TArray<UTileDataAsset*> AvoidantTiles;
-
-    /* DEPENDENT RULE (Whitelist/Requirement):
-     * This tile MUST be placed next to AT LEAST ONE of the tiles in this list.*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Rules")
-    TArray<UTileDataAsset*> DependentTiles;
+    TArray<FTileRuleWrapper> AdjacencyRules;
 };

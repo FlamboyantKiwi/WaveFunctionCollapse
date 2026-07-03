@@ -65,4 +65,10 @@ private:
     int32 GetIndexFromGridPos(int32 X, int32 Y) const;
     bool IsValidCoordinate(int32 X, int32 Y) const;
     bool IsTileStillValid(const FWfcCell& CurrentCell, UTileDataAsset* TileToEvaluate) const;
+    
+    // Returns a pointer to the neighbor, or nullptr if out of bounds.
+    // One version for modifying, one version for read-only (const) checks
+    FWfcCell* GetNeighbor(const FWfcCell& CurrentCell, FIntPoint Offset);
+    const FWfcCell* GetNeighbor(const FWfcCell& CurrentCell, FIntPoint Offset) const;
+    int32 GetNeighborIndex(const FWfcCell& CurrentCell, FIntPoint Offset) const;
 };
