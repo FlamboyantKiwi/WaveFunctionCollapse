@@ -12,8 +12,18 @@ class AWfcGenerator : public AActor {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	AWfcGenerator();
+    // Sets default values for this actor's properties
+    AWfcGenerator();
+
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
+
+    UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
+    void GenerateGrid(FIntPoint NewGridSize, TArray<UTileDataAsset*>  newTiles);
+
+    UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
+    void InitializeGrid(FIntPoint NewGridSize, TArray<UTileDataAsset*>  newTiles);
+
     // Returns true if the grid is fully collapsed (finished), false if still working
     UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
     bool StepWfc();
@@ -22,13 +32,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 private:
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Settings", meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Settings", meta = (AllowPrivateAccess = "true"))
     FIntPoint GridSize = FIntPoint(10, 10);
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Settings", meta = (AllowPrivateAccess = "true"))
@@ -43,12 +49,6 @@ private:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "WFC|Debug", meta = (AllowPrivateAccess = "true"))
     TArray<FWfcCell> Grid;
-
-    UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
-    void GenerateGrid();
-
-    UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
-    void InitializeGrid();
 
     UFUNCTION(BlueprintCallable, Category = "WFC|Execution")
     void SpawnActorsFromGrid();

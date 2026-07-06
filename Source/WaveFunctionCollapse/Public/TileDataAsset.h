@@ -16,7 +16,7 @@
  * customizable, data-driven constraints—including Avoidant/Required conditions, specific 
  * directional checks (Orthogonal/Diagonal), and exact neighbor counts—without altering C++ logic.
  */
-UCLASS()
+UCLASS(BlueprintType)
 class WAVEFUNCTIONCOLLAPSE_API UTileDataAsset : public UDataAsset {
 	GENERATED_BODY()
 public:

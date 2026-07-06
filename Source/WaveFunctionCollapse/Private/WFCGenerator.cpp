@@ -20,17 +20,20 @@ void AWfcGenerator::Tick(float DeltaTime) {
     Super::Tick(DeltaTime);
 }
 
-void AWfcGenerator::GenerateGrid() {
+void AWfcGenerator::GenerateGrid(FIntPoint NewGridSize, TArray<UTileDataAsset*> newTiles) {
+    AvailableTiles = newTiles;
     if (AvailableTiles.Num() == 0) {
         UE_LOG(LogTemp, Error, TEXT("WFC Generator has no Available Tiles set!"));
         return;
     }
-    InitializeGrid();
+    InitializeGrid(NewGridSize, newTiles);
     RunWfc();
     SpawnActorsFromGrid();
 }
 
-void AWfcGenerator::InitializeGrid() {
+void AWfcGenerator::InitializeGrid(FIntPoint NewGridSize, TArray<UTileDataAsset*> newTiles) {
+    GridSize = NewGridSize;
+    AvailableTiles = newTiles;
     // Pre-allocate memory to prevent the TArray from resizing during the loop
     Grid.Empty(GridSize.X * GridSize.Y);
 
