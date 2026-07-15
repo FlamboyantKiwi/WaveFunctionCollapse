@@ -22,23 +22,23 @@ class WAVEFUNCTIONCOLLAPSE_API UTileDataAsset : public UDataAsset {
 public:
     /* The actual Blueprint Actor to spawn in the world when this tile is permanently
      * selected (collapsed) by the WFC algorithm.*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Spawning")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Spawning")
     TSubclassOf<AActor> ActorClass;
 
     // The clean name displayed on the UI
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Visuals")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Visuals", meta = (ExposeOnSpawn = "true"))
     FString DisplayName = "Unknown";
 
     // The color this tile will display in the UI board
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Visuals")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Visuals", meta = (ExposeOnSpawn = "true"))
     FLinearColor TileColor = FLinearColor::Green;
 
     /* Determines how likely this tile is to be selected compared to other valid tiles.
      * A higher weight means it will be chosen more frequently during the collapse phase.*/
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Rules")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Rules", meta = (ExposeOnSpawn = "true"))
     float SpawnWeight = 1.0f;
 
     // The master list of all rules for this tile
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WFC|Rules")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WFC|Rules", meta = (ExposeOnSpawn = "true"))
     TArray<FTileRuleWrapper> AdjacencyRules;
 };
