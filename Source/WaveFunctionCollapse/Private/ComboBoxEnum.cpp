@@ -39,3 +39,22 @@ void UComboBoxEnum::PopulateFromEnum()
 		SetSelectedIndex(0);
 	}
 }
+
+FOptionValue UComboBoxEnum::GetOptionValue() const
+{
+	// Return an Int-type OptionValue by default using the selected index
+	FOptionValue OutVal(GetSelectedIndex());
+
+	// Also attach the selected string name so we can access both
+	OutVal.StringValue = GetSelectedOption();
+	return OutVal;
+}
+
+void UComboBoxEnum::SetOptionValue(const FOptionValue& InValue)
+{
+	if (InValue.DataType == EOptionDataType::Int){
+		SetSelectedIndex(InValue.IntValue);
+	} else if (InValue.DataType == EOptionDataType::String){
+		SetSelectedOption(InValue.StringValue);
+	}
+}

@@ -17,38 +17,58 @@ enum class EWfcRuleCondition : uint8 {
 };
 
 UENUM(BlueprintType)
-enum class EWfcDirection : uint8 {
-    Orthogonal   UMETA(DisplayName = "Up/Down/Left/Right"),
-    Diagonal     UMETA(DisplayName = "Corners Only"),
-    Any          UMETA(DisplayName = "Any Neighbor")
+enum class ENeighborDirection : uint8 {
+    None		UMETA(DisplayName = "None"),
+    Top			UMETA(DisplayName = "Top"),
+    TopRight	UMETA(DisplayName = "Top Right"),
+    Right		UMETA(DisplayName = "Right"),
+    BottomRight	UMETA(DisplayName = "Bottom Right"),
+    Bottom		UMETA(DisplayName = "Bottom"),
+    BottomLeft	UMETA(DisplayName = "Bottom Left"),
+    Left		UMETA(DisplayName = "Left"),
+    TopLeft		UMETA(DisplayName = "Top Left")
 };
 
-// A single, constant array of all 8 possible directions
-static inline const FIntPoint AllDirections[8] = {
-    FIntPoint(0, 1), FIntPoint(0, -1), FIntPoint(1, 0), FIntPoint(-1, 0), // 0-3: Orthogonal
-    FIntPoint(1, 1), FIntPoint(-1, 1), FIntPoint(1, -1), FIntPoint(-1, -1) // 4-7: Diagonal
+// Lookup table mapped to the uint8 values of ENeighborDirection.
+static inline const FIntPoint DirectionOffsets[9] = {
+    FIntPoint(0, 0),   // 0: None
+    FIntPoint(0, 1),   // 1: Top 
+    FIntPoint(1, 1),   // 2: Top Right
+    FIntPoint(1, 0),   // 3: Right
+    FIntPoint(1, -1),  // 4: Bottom Right
+    FIntPoint(0, -1),  // 5: Bottom
+    FIntPoint(-1, -1), // 6: Bottom Left
+    FIntPoint(-1, 0),  // 7: Left
+    FIntPoint(-1, 1)   // 8: Top Left
+};
+
+// A clean iterator array skipping 'None'
+static inline const ENeighborDirection ValidDirections[8] = {
+    ENeighborDirection::Top,
+    ENeighborDirection::TopRight,
+    ENeighborDirection::Right,
+    ENeighborDirection::BottomRight,
+    ENeighborDirection::Bottom,
+    ENeighborDirection::BottomLeft,
+    ENeighborDirection::Left,
+    ENeighborDirection::TopLeft
 };
 
 class FWfcMath {
 public:
-    // Returns a memory-free "window" into the hardcoded array
-    static inline TArrayView<const FIntPoint> GetDirectionOffsets(EWfcDirection DirectionType) {
-        switch (DirectionType) {
-        case EWfcDirection::Orthogonal: return TArrayView<const FIntPoint>(AllDirections, 4);
-        case EWfcDirection::Diagonal:   return TArrayView<const FIntPoint>(AllDirections + 4, 4);
-        case EWfcDirection::Any:
-        default:                        return TArrayView<const FIntPoint>(AllDirections, 8);
-        }
+    // Returns the exact grid offset for a specific enum direction (O(1) lookup)
+    static inline FIntPoint GetOffsetForDirection(ENeighborDirection Direction) {
+        return DirectionOffsets[static_cast<uint8>(Direction)];
     }
-    //Lets the math library decide if an offset matches a specific rule type
-    static inline bool MatchesDirection(FIntPoint Offset, EWfcDirection RuleDirection) {
-        if (RuleDirection == EWfcDirection::Any) return true;
+    // Checks if a given grid offset matches any of the directions selected in a rule array
+    static inline bool MatchesAnySelectedDirection(FIntPoint Offset, const TArray<ENeighborDirection>& AllowedDirections) {
+        for (ENeighborDirection Dir : AllowedDirections) {
+            if (Dir == ENeighborDirection::None) continue;
 
-        // The absolute sum trick (1 = Orthogonal, 2 = Diagonal)
-        int32 AbsSum = FMath::Abs(Offset.X) + FMath::Abs(Offset.Y);
-
-        if (RuleDirection == EWfcDirection::Orthogonal) return AbsSum == 1;
-        if (RuleDirection == EWfcDirection::Diagonal) return AbsSum == 2;
+            if (Offset == GetOffsetForDirection(Dir)) {
+                return true;
+            }
+        }
         return false;
     }
 };
@@ -68,7 +88,7 @@ struct FTileRuleWrapper {
     EWfcRuleCondition Condition = EWfcRuleCondition::Avoidant;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rule")
-    EWfcDirection Direction = EWfcDirection::Orthogonal;
+    TArray<ENeighborDirection> Directions;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rule", meta = (EditCondition = "Condition == EWfcRuleCondition::Required", EditConditionHides, ClampMin = "1", ClampMax = "8"))
     int32 RequiredCount = 1;

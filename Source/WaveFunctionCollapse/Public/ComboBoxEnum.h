@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ComboBoxString.h"
+#include "OptionUtils.h"
 #include "ComboBoxEnum.generated.h"
 
 /* A custom ComboBoxString that automatically populates itself based on a provided UENUM. */
@@ -11,6 +12,12 @@ class WAVEFUNCTIONCOLLAPSE_API UComboBoxEnum : public UComboBoxString {
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnumComboBox")
 	FString TargetEnum;
+
+	UFUNCTION(BlueprintCallable, Category = "Options")
+	FOptionValue GetOptionValue() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Options")
+	void SetOptionValue(const FOptionValue& InValue);
 protected:
 	// Called when properties are changed in the UMG designer, and at runtime setup
 	virtual void SynchronizeProperties() override;

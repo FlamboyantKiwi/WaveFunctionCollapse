@@ -147,15 +147,14 @@ void AWfcGenerator::PropagateConstraints(int32 CollapsedCellIndex) {
     // A stack to keep track of cells that recently changed and need their neighbors checked
     TArray<int32> Stack;
     Stack.Add(CollapsedCellIndex);
-    TArrayView<const FIntPoint> DirectionsToCheck = FWfcMath::GetDirectionOffsets(EWfcDirection::Any);
 
     while (Stack.Num() > 0) {
         int32 CurrentIndex = Stack.Pop();
         FWfcCell& CurrentCell = Grid[CurrentIndex];
 
-		// Check Directions based on the collapsed tile's constraints
-        for (FIntPoint Dir : DirectionsToCheck) {
-            FWfcCell* NeighborCell = GetNeighbor(CurrentCell, Dir);
+        for (ENeighborDirection DirEnum : ValidDirections) {
+            FIntPoint DirOffset = FWfcMath::GetOffsetForDirection(DirEnum);
+            FWfcCell* NeighborCell = GetNeighbor(CurrentCell, DirOffset);
 
             // Early exit if off the board, or if already collapsed
             if (!NeighborCell || NeighborCell->bIsCollapsed) continue;
@@ -176,7 +175,7 @@ void AWfcGenerator::PropagateConstraints(int32 CollapsedCellIndex) {
             // If this neighbor lost possibilities, it might affect ITS neighbors, so add to stack
             if (bPossibilitiesChanged) {
                 // Add the Index to the stack
-                int32 NeighborIndex = GetNeighborIndex(CurrentCell, Dir);
+                int32 NeighborIndex = GetNeighborIndex(CurrentCell, DirOffset);
                 Stack.AddUnique(NeighborIndex);
             }
         }
@@ -215,12 +214,16 @@ bool AWfcGenerator::IsTileStillValid(const FWfcCell& CurrentCell, UTileDataAsset
     for (const FTileRuleWrapper& Rule : TileToEvaluate->AdjacencyRules) {
         if (!Rule.TargetTile) continue;
 
-        // Get only the directions this rule cares about
-        TArrayView<const FIntPoint> Offsets = FWfcMath::GetDirectionOffsets(Rule.Direction);
+
         int32 PossibleCount = 0;
 
-        for (FIntPoint Offset : Offsets) {
+        // Loop through the specific directions checked in the UI array
+        for (ENeighborDirection Dir : Rule.Directions) {
+            if (Dir == ENeighborDirection::None) continue;
+
+            FIntPoint Offset = FWfcMath::GetOffsetForDirection(Dir);
             const FWfcCell* Neighbor = GetNeighbor(CurrentCell, Offset);
+
             if (!Neighbor) continue;
 
             if (Rule.Condition == EWfcRuleCondition::Avoidant) {
@@ -243,9 +246,9 @@ bool AWfcGenerator::IsTileStillValid(const FWfcCell& CurrentCell, UTileDataAsset
     }
 
     // BIDIRECTIONAL CHECK: Do the neighbors hate TileToEvaluate?)
-    TArrayView<const FIntPoint> AllOffsets = FWfcMath::GetDirectionOffsets(EWfcDirection::Any);
+    for (ENeighborDirection DirEnum : ValidDirections) {
+        FIntPoint Offset = FWfcMath::GetOffsetForDirection(DirEnum);
 
-    for (FIntPoint Offset : AllOffsets) {
         const FWfcCell* Neighbor = GetNeighbor(CurrentCell, Offset);
 
         // Skip if off the board, not collapsed, or has no specific tile locked in
@@ -256,8 +259,10 @@ bool AWfcGenerator::IsTileStillValid(const FWfcCell& CurrentCell, UTileDataAsset
 
         for (const FTileRuleWrapper& NeighborRule : NeighborTile->AdjacencyRules) {
             if (NeighborRule.Condition == EWfcRuleCondition::Avoidant && NeighborRule.TargetTile == TileToEvaluate) {
-                // Ask the math library if this neighbor's rule applies to the direction we are standing in
-                if (FWfcMath::MatchesDirection(Offset, NeighborRule.Direction)) {
+               FIntPoint ReverseOffset = Offset * -1;
+                
+                // Ask the math library if this reversed offset matches any of the neighbor's avoided directions
+                if (FWfcMath::MatchesAnySelectedDirection(ReverseOffset, NeighborRule.Directions)) {
                     return false; // The neighbor hates us
                 }
             }
