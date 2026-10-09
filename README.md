@@ -1,17 +1,16 @@
 # Wave Function Collapse (WFC) Generator for Unreal Engine 5
 
+[![Unreal Engine](https://img.shields.io/badge/Unreal_Engine-5.4-orange.svg)](https://unrealengine.com)
+![UMG](https://img.shields.io/badge/UMG-Unreal%20Motion%20Graphics-purple.svg)
+[![C++](https://img.shields.io/badge/C++-20-blue.svg)](https://isocpp.org)
+![Blueprints](https://img.shields.io/badge/Blueprints-Visual%20Scripting-blue.svg)
+
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue.svg)](https://github.com/FlamboyantKiwi/WaveFunctionCollapse)
+
 
 A data-driven, step-by-step Wave Function Collapse (WFC) algorithm built in Unreal Engine 5 C++ and controlled via UMG Blueprints. 
 
 This project is a ground-up C++ rebuild of a former university assignment. The primary goal is to transition from basic, hardcoded logic into a clean, highly customizable, and data-driven architecture. It currently focuses purely on algorithmic accuracy and UI visualization, laying a perfect mathematical foundation before introducing physical 3D meshes into the world.
-
----
-
-## 💻 Technical Details
-* **Engine:** Unreal Engine 5
-* **Core Language:** C++
-* **UI/UX:** UMG (Unreal Motion Graphics) & Blueprints
 
 ---
 
@@ -52,3 +51,8 @@ This repository is actively in development. Upcoming features include:
 * **Advanced Playback & Backtracking:** Adding robust controls to pause generation mid-solve, alongside a state-saving "Undo" (backtracking) feature to reverse previous collapses if the algorithm hits a contradiction.
 * **Pre-seeded Generation:** The ability to lock pre-existing data into specific grid positions before the algorithm runs, allowing designers to dictate fixed start/end points or borders.
 * **3D Actor Spawning:** Once the 2D UI grid successfully solves without deadlocks, translating that final state into a physical 3D world by spawning the corresponding static meshes/actors.
+
+---
+<div align="center">
+  <small>Created by <b>Freddy Edmunds</b> | <a href="https://github.com/FlamboyantKiwi">GitHub</a> | <a href="https://freddyedmunds.co.uk">freddyedmunds.co.uk</a></small>
+</div>
